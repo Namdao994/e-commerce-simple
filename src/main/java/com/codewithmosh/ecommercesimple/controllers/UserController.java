@@ -1,6 +1,7 @@
 package com.codewithmosh.ecommercesimple.controllers;
 
 import com.codewithmosh.ecommercesimple.dtos.RegisterUserRequest;
+import com.codewithmosh.ecommercesimple.dtos.UpdateUserRequest;
 import com.codewithmosh.ecommercesimple.dtos.UserDto;
 import com.codewithmosh.ecommercesimple.mappers.UserMapper;
 import com.codewithmosh.ecommercesimple.repositories.UserRepository;
@@ -49,5 +50,18 @@ public class UserController {
         var userDto = userMapper.toDto(user);
         var uri = uriBuilder.path("/user/${id").buildAndExpand(userDto.getId()).toUri();
         return ResponseEntity.created(uri).body(userDto);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDto> updateUser(
+            @PathVariable(name = "id") Long id,
+            @RequestBody UpdateUserRequest request) {
+        var user = userRepository.findById(id).orElse( null);
+        if(user == null) {
+            return ResponseEntity.notFound().build();
+        }
+        userMapper.update(request, user);
+        userRepository.save(user);
+        return ResponseEntity.ok(userMapper.toDto(user));
     }
 }
